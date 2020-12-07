@@ -1,0 +1,34 @@
+# tmp files
+tmp/
+temp/
+
+# executable directories
+bin/
+gen/
+out/
+build/
+__pycache__/
+
+# executable files
+*.pyc
+*.exe
+
+# log files
+*.log
+/*.md
+
+# setting files
+.classpath
+.project
+.vscode
+.idle
+
+# rep diy
+/local/share/
+/vim/bundles/*
+/vim/.vbuf
+/todo/todo.txt
+/todo/todo.txt.bak
+/todo/done.txt
+/todo/.ice_recur_completed
+/todo/ice_recur.txt

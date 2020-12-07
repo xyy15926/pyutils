@@ -1,0 +1,53 @@
+version: 1
+eles:
+  name: "%(pathname)s - %(filename)s"
+  pos: "%(module)s - %(funcName)s - %(lineno)d"
+  level: "%(levelno)d - %(levelname)s"
+  proc: "%(process)d - %(processName)s - %(thread)d - %(threadName)s"
+formatters:
+  notime:
+    format: "%(name)s - %(funcName)s - %(levelname)s: %(message)s"
+  brief:
+    format: "%(asctime)s: %(message)s"
+  simple:
+    format: "%(asctime)s - %(name)s - %(levelname)s: %(message)s"
+  func:
+    format: "%(asctime)s - %(name)s - %(levelname)s - %(funcName)s: %(message)s"
+  path:
+    format: "%(asctime)s - %(name)s - %(levelname)s - %(pathname)s - %(message)s"
+handlers:
+  console:
+    class: logging.StreamHandler
+    formatter: notime
+    level: DEBUG
+    stream: ext://sys.stdout
+  file:
+    class: logging.FileHandler
+    formatter: func
+    level: WARNING
+    filename: log/debug.log
+  http:
+    class: logging.handlers.HTTPHandler
+    formatter: simple
+    level: DEBUG
+    host: localhost:8001
+    url: log
+    method: POST
+  root_error:
+    class: logging.handlers.RotatingFileHandler
+    level: ERROR
+    formatter: path
+    filename: log/root_error.log
+    backupCount: 5
+    encoding: utf8
+    maxBytes: 1024000
+root:
+  level: DEBUG
+  handlers: [console, root_error]
+loggers:
+  xutils:
+    level: DEBUG
+    handlers: [file]
+  main:
+    level: DEBUG
+    handlers: [file]
