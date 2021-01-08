@@ -16,9 +16,9 @@ def save_ims(
     ims: list,
     file_name:str = "",
     file_type:str = "",
-    to_strip_space:bool = True,
-    to_compress:bool = True,
-    ignore_exists:bool = True,
+    to_strip_space:bool = False,
+    to_compress:bool = False,
+    ignore_exists:bool = False,
     **kwargs
 ) -> None:
     """
@@ -47,8 +47,8 @@ def save_ims(
         file_name_splited = file_name.split(".")
         file_name = "".join([
             *file_name_splited[:-1],
-            f"_{int(time.time())}",
-            *file_name_splited[-1:]
+            f"_{int(time.time())}.",
+            file_name_splited[-1]
         ])
 
     # For dynamic file type, gif for example, save image

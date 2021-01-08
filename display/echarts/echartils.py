@@ -102,15 +102,17 @@ async def _snapshot(
     return await page.evaluate(snapshot_js)
 
 async def make_snapshot(
-    html_path: str,
-    output_name: str,
-    file_type:str = "",
-    pixel_ratio: int = 2,
-    delay: int = 0,
-    snap_fps:int = 24,
-    frame_n:int = 1,
-    intervals:list = [],
-    browser: Any = None,
+    html_path:str,
+    output_name:str,
+    file_type:str="",
+    pixel_ratio:int=2,
+    delay:int=0,
+    snap_fps:int=24,
+    frame_n:int=1,
+    intervals:list=[],
+    browser:Any=None,
+    snapshot_kwargs:dict={},
+    saveims_kwargs:dict={},
     **kwargs
 ) -> None:
     # Get or set filetype
@@ -132,7 +134,7 @@ async def make_snapshot(
         frame_n,
         intervals,
         browser,
-        **kwargs
+        **snapshot_kwargs
     )
 
     # Save snapshots result in file directly
@@ -147,7 +149,7 @@ async def make_snapshot(
             [decode_b64(ret.split(",")[1]) for ret in rets],
             output_name,
             file_type,
-            **kwargs
+            **saveims_kwargs
         )
 
 # %%

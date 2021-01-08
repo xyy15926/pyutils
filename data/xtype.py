@@ -221,7 +221,7 @@ class Interval(Container):
         # `Other`: iterable
         # 1. Flatten and separate containers, non-containers in `other`
         # 2. call `intervals_union_intervals`, `intervals_union_sized`
-        elif issubclass(type(other), Iterable):
+        else:
             other = flatten_iterable(other)
             intervals, sized = separate_container(other)
             # Copy if not mutable
@@ -244,9 +244,6 @@ class Interval(Container):
                 return intervals[0]
             else:
                 return Value.from_raw(sized, intervals)
-        else:
-            raise ValueError(f"Inappropriate parameter {other}")
-
 
     def __sub__(self, other:Any, mutable:bool=False) -> Any:
         """
@@ -304,8 +301,6 @@ class Interval(Container):
                 return self.copy[0]
             else:
                 return Value.from_raw(set(), self_copy)
-        else:
-            raise ValueError(f"Inappropriate parameter {other}")
 
     def __repr__(self):
         """
@@ -658,7 +653,7 @@ class Interval(Container):
             if right_sized[ridx] < left_intervals[lidx].left:
                 sized.append(right_sized[ridx])
                 ridx += 1
-            elif right_sized[ridx] == left_intervals[lidx]:
+            elif right_sized[ridx] == left_intervals[lidx].left:
                 left_intervals[lidx].including_left = True
                 ridx += 1
             elif right_sized[ridx] < left_intervals[lidx].right:
@@ -870,9 +865,6 @@ class Interval(Container):
         keep_right:Union[bool, None]=None
     ) -> Interval:
         if (keep_right is None) or keep_right:
-            # Right-side prefered
-            self.left = other.right
-            self.including_left = not other.including_right
             # Set temperary left-side interval
             tmp_itvl = Interval(
                 self.left,
@@ -880,14 +872,16 @@ class Interval(Container):
                 self.including_left,
                 not other.including_left
             )
-            if tmp_itvl:
+            if not tmp_itvl:
                 tmp_itvl = NAN_INTERVAL
+            # Right-side prefered
+            self.left = other.right
+            self.including_left = not other.including_right
 
             # Set `self` with not null side, right-side prefered
             if (keep_right is None) and (not self):
                 self.set_with(tmp_itvl)
                 return NAN_INTERVAL
-                return tmp_itvl
             # Set `self` with right-side at all time
             # Return left-side at all time
             else:
@@ -896,9 +890,6 @@ class Interval(Container):
         # Set `self` with left-side at all time
         # Return right-side at all time
         else:
-            # Left-side prefered
-            self.right = other.left
-            self.including_right = not other.including_left
             # Set temperary left-side interval
             tmp_itvl = Interval(
                 other.right,
@@ -908,6 +899,9 @@ class Interval(Container):
             )
             if not tmp_itvl:
                 tmp_itvl = NAN_INTERVAL
+            # Left-side prefered
+            self.right = other.left
+            self.including_right = not other.including_left
             return tmp_itvl
 
     def set_with(self, other: Interval) -> None:
@@ -937,14 +931,7 @@ NAN = float("nan")
 UNI_INTERVAL = Interval(NINF, INF, False, False)
 MAX_INTERVAL = Interval(INF, INF, False, False)
 MIN_INTERVAL = Interval(NINF, NINF, False, False)
-NAN_INTERVAL = Interval(NAN, NAN< False, False)
-a = Interval(1, 2)
-b = Interval(2, 5)
-c = Interval(5.5, 6)
-d = Interval(7, 20)
-Interval.intervals_diff_intervals([b, d, c, a], [c])
-# Interval.trim_intervals([b, d, c, a], True)
-
+NAN_INTERVAL = Interval(NAN, NAN, False, False)
 # %%
 class Value(Iterable):
     def __init__(
@@ -1196,14 +1183,31 @@ class Value(Iterable):
         str_ = str_.repalce(" ", "")[1:-1]
         sized_str, itvls_str = str_.split("},")
         sized_str = sized[1:].split(",")
-        sized = [int(ele) for ele in size if re.fullmatch("[+-]?\d+") else float(ele)]
+        sized_idx = 0
+        for sized_idx in range(len(sized_str)):
+            if re.fullmatch("[+-]?\d+", sized_str[sized_idx]):
+                sized_str[sized_idx] = int(sized_str[sized_idx])
+            else:
+                sized_str[sized_idx] = float(sized_str[sized_idx])
         itvls, itvl_idx = [], 0
         itvls_str = itvls_str.split(",")
         while itvl_idx < len(itvls_str):
-            itvls.append(Interval.from_str(f"{itvls_str[itvl_idx]},{itvls_str[itvl_idx+1]"))
+            itvls.append(Interval.from_str(f"{itvls_str[itvl_idx]},{itvls_str[itvl_idx+1]}"))
             itvl_idx += 2
         return Value.from_raw(
             set(sized),
             itvls
         )
+# %%
+if __name__ == "__main__":
+    a = Interval(1, 2)
+    b = Interval(2, 5)
+    c = Interval(5.5, 6)
+    d = Interval(7, 20)
+    print(Interval.intervals_diff_intervals([b, d, c, a], [c]))
+    print(Interval.complement_intervals([a, b, c, d]))
+    print(Interval.intervals_diff_intervals([UNI_INTERVAL], [a, b, c, d]))
+    Interval.trim_intervals([b, d, c, a], True)
 
+
+# %%

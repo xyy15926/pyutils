@@ -19,7 +19,7 @@ def screen_grab(
     im = ImageGrab.grab()
     width, height = im.size
     k = np.zeros((200, 200), np.uint8)
-    fourcc = cv2.VideoWriter_fourcc(*"XVID")
+    fourcc = cv2.VideoWriter_fourcc(*"U263")
     video = cv2.VideoWriter(file_name, fourcc, fps // 2, (width, height))
     while True:
         im = ImageGrab.grab()

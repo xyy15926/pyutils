@@ -28,14 +28,19 @@ async def run_snapshots(
     # the args `remoteAddress` is "ws://<server IP>:3000"
     """
     remote_address = kwargs.get("remoteAddress")
-    if remote_address is not None:
-        _browser = browser or await connect({"browserWSEndpoint": kwargs.get("remoteAddress")})
+    if browser:
+        _browser = browser
+    elif remote_address is not None:
+        _browser = await connect({
+            "browserWSEndpoint": remote_address
+        })
     else:
-        _browser = browser or await launch({
-            "headless": True,
-            "args":[
-                "--start-maximized"
-            ]
+        _browser = await launch({
+            "headless": kwargs.get("headless", True),
+            "args": kwargs.get("args", [
+                    "--start-maximized"
+                ]
+            )
         })
 
 
